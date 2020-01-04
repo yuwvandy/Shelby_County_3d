@@ -12,7 +12,7 @@ def UnitLength(Link):
     return A
 
 T = 100
-
+"""
 LonIter = np.arange(-95, -84.9, 0.1)
 LatIter = np.arange(30, 40.1, 0.1)
 IntIter = np.arange(5, 5.1, 1)
@@ -20,7 +20,7 @@ IntIter = np.arange(5, 5.1, 1)
 LonIter = [-90]
 LatIter = [30]
 IntIter = np.arange(0, 11, 0.1)
-"""
+
 Sys_Water_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
 Sys_Power_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
 Sys_Gas_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
@@ -50,6 +50,8 @@ for k in range(len(IntIter)):
                 Earth.DistanceCalculation()
                 Earth.NodeFailProbCalculation()
                 Earth.MCFailureSimulation()
+                Earth.GeoDepenFailProb()
+                Earth.GeoMCSimulation()
                 
                 while(1):
                     Earth.AdjUpdate()

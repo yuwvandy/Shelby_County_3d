@@ -21,7 +21,7 @@ def NMinIndex(Array, N):
         temp += 1
     return np.array(Index)
 
-class Interdependency:
+class PhyInterdependency:
     def __init__(self, Name, Network1, Network2, System, Type, UnitRatio): #Network2 depend on Network1
         self.Name = Name
         self.System = System
@@ -50,10 +50,10 @@ class Interdependency:
             self.System.Capacity[Index + self.Network1.WholeDemandSeries[0], i] = self.Network1.Limit
             
 
-InterGP = Interdependency("InterGasPower", Gas, Power, Shelby_County, "Resource", 1)
-InterPG = Interdependency("InterPowerGas", Power, Gas, Shelby_County, "Power", 10)
-InterPW = Interdependency("InterPowerWater", Power, Water, Shelby_County, "Power", 1)
-InterWP = Interdependency("InterWaterPower", Water, Power, Shelby_County, "Cooling", 10)
+InterGP = PhyInterdependency("InterGasPower", Gas, Power, Shelby_County, "Resource", 1)
+InterPG = PhyInterdependency("InterPowerGas", Power, Gas, Shelby_County, "Power", 10)
+InterPW = PhyInterdependency("InterPowerWater", Power, Water, Shelby_County, "Power", 1)
+InterWP = PhyInterdependency("InterWaterPower", Water, Power, Shelby_County, "Cooling", 10)
 
 InterGP.InterDepAdj()
 InterPG.InterDepAdj()
@@ -65,4 +65,5 @@ Shelby_County.Interdependency = [InterGP, InterPG, InterPW, InterWP]
 for InterNetwork in Shelby_County.Interdependency:
     InterNetwork.TimeAdj = []
     InterNetwork.TimeAdj.append(InterNetwork.Adj)
+            
     

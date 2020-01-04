@@ -260,7 +260,6 @@ def NeedAssignment(Network, Density, X, Y, Area):
                 if(Temp < Min):
                     Index = i
                     Min = Temp
-            print(Index)
             Network.DemandValue[Index - Network.DemandSeries[0]] += Density[j][k]*Area[j][k]*Network.Demand_Person
 
 for Network in Shelby_County.Networks:

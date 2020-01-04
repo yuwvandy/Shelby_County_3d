@@ -84,18 +84,11 @@ def IntenThresh(IntInter, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
     
     
     return InterStrength
-    
 
-IntIter = np.arange(7, 7.1, 1)
-IntenList = [0, 30, 45, 50, 60, 70, 100]
-DisrupLat = 0 ##30
-DisrupLon = 0 ##-90
-X = np.arange(0, 20, 1)
+##Sys_Perform = np.load(r"C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Intensity\Sys_Perform.npy", allow_pickle = True)
+##Sin_Sys_Perform = np.load(r"C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Intensity\Sin_Sys_Perform.npy", allow_pickle = True)
 
-Sys_Perform = np.load(r"C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Intensity\Sys_Perform.npy", allow_pickle = True)
-Sin_Sys_Perform = np.load(r"C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Intensity\Sin_Sys_Perform.npy", allow_pickle = True)
-
-IntIter = np.arange(0, 10, 0.1)
+IntIter = np.arange(0, 11, 0.1)
 IntenList = [0, 30, 45, 50, 60, 70, 100]
 DisrupLat = 0
 DisrupLon = 0

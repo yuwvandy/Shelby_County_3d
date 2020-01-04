@@ -59,7 +59,24 @@ class EarthquakeSys:
         
         #Failure due to Disruption
         self.NodeFail.append(self.NodeFailProb > self.NodeFailRand)
-        self.NodeFailIndex.append(list(np.where(self.NodeFail[-1] == True)[0]))       
+        self.NodeFailIndex.append(list(np.where(self.NodeFail[-1] == True)[0]))  
+        self.NodeFailIndex1 = copy.copy(self.NodeFailIndex)
+    
+    def GeoDepenFailProb(self): ##Only happens rightly after the earthquake
+        self.GeoNodeFailProb = []
+        for node1 in range(self.Target.NodeNum):
+            Temp = 1
+            if(node1 not in self.NodeFailIndex[-1]):
+                for node2 in self.NodeFailIndex[-1]:
+                    Temp *= np.exp(-1/self.Target.Dist[node1, node2])
+                self.GeoNodeFailProb.append([node1, 1 - Temp])
+        
+    def GeoMCSimulation(self):
+        self.GeoNodeFail = []
+        self.NodeFailRand = np.random.rand(len(self.GeoNodeFailProb))
+        for i in range(len(self.GeoNodeFailProb)):
+            if(self.GeoNodeFailProb[i][1] > self.NodeFailRand[i]):
+                self.NodeFailIndex[-1].append(self.GeoNodeFailProb[i][0])
         
     def AdjUpdate(self):
         Adj = copy.copy(self.Target.TimeAdj[-1])
@@ -77,6 +94,7 @@ class EarthquakeSys:
         Adj[:, self.NodeFailIndex[-1]] = 0
         
         self.Target.TimeAdj.append(Adj)
+        
         
     def FlowUpdate(self):
         Flow = self.Target.TimeAdj[-1]*self.Target.FlowAdj[-1]
@@ -193,6 +211,8 @@ Earth.DistanceCalculation()
 Earth.NodeFailProbCalculation()
 Earth.MCFailureSimulation()
 
+Earth.GeoDepenFailProb()
+Earth.GeoMCSimulation()
 
 while(1):
     Earth.AdjUpdate()
