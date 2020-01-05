@@ -60,7 +60,7 @@ class Flow:
                         else:
                             self.Obj += '+ f{}{}{}*{}*{}'.format(Network.Name, i, j, Network.TranFee, Network.Dist[i][j])
         
-        Power.NodeFlowConverge2 = copy.copy(Power.NodeFlowConverge)
+        Power.NodeFlowConverge2 = copy.deepcopy(Power.NodeFlowConverge)
         
         ##Rule out circulation between vertice within the same network---------
         """

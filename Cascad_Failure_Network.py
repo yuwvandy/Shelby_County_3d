@@ -18,7 +18,7 @@ class EarthquakeNet:
     
     def VariableIni(self):
         self.Target.SingleTimeAdj = []
-        self.Target.SingleTimeAdj.append(copy.copy(Network.Adj))
+        self.Target.SingleTimeAdj.append(copy.deepcopy(Network.Adj))
         self.Target.NodeFailIndex = []
         self.Target.SingleSatisDe = []
         self.Target.SinglePerform = [1]
@@ -32,7 +32,7 @@ class EarthquakeNet:
                 self.Target.NodeFailIndex[-1].append(node)
         
     def AdjUpdate(self):
-        Adj = copy.copy(self.Target.TimeAdj[-1])
+        Adj = copy.deepcopy(self.Target.TimeAdj[-1])
         """
         gama = 0.5
         for i in self.Target.NodeFailIndex[-1]:
@@ -78,7 +78,7 @@ class EarthquakeNet:
         self.Target.FlowAdj.append(Flow)
         
     def CascadFail(self):
-        self.Target.NodeFailIndex.append(copy.copy(self.Target.NodeFailIndex[-1]))
+        self.Target.NodeFailIndex.append(copy.deepcopy(self.Target.NodeFailIndex[-1]))
         for i in range(Network.NodeNum):
             FlowInNode = np.sum(self.Target.FlowAdj[-1][:, i])
             FlowInNode0 = np.sum(self.Target.FlowAdj[0][:, i])

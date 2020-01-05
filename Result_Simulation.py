@@ -19,12 +19,17 @@ IntIter = np.arange(5, 5.1, 1)
 """
 LonIter = [-90]
 LatIter = [30]
-IntIter = np.arange(0, 11, 0.1)
+IntIter = np.arange(5, 11, 0.1)
 
 Sys_Water_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
 Sys_Power_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
 Sys_Gas_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
 Sys_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
+
+No_Geo_Sys_Water_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
+No_Geo_Sys_Power_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
+No_Geo_Sys_Gas_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
+No_Geo_Sys_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
 
 Sin_Water_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
 Sin_Power_Perform = np.array([[[[None]*T]*len(IntIter)]*len(LatIter)]*len(LonIter))
@@ -49,10 +54,10 @@ for k in range(len(IntIter)):
                 Earth = EarthquakeSys(Shelby_County, LonIter[i], LatIter[j], IntIter[k])
                 Earth.DistanceCalculation()
                 Earth.NodeFailProbCalculation()
-                Earth.MCFailureSimulation()
+                Earth.MCFailureSimulation()                
                 Earth.GeoDepenFailProb()
                 Earth.GeoMCSimulation()
-                
+
                 while(1):
                     Earth.AdjUpdate()
                     Earth.FlowUpdate()
@@ -63,11 +68,29 @@ for k in range(len(IntIter)):
                 
                 
                 Sys_Water_Perform[i][j][k][p] = np.array(UnitLength(Water.Performance))
-                Sys_Power_Perform[i][j][k][p] = np.array(UnitLength(Water.Performance))
-                Sys_Gas_Perform[i][j][k][p] = np.array(UnitLength(Water.Performance))
+                Sys_Power_Perform[i][j][k][p] = np.array(UnitLength(Power.Performance))
+                Sys_Gas_Perform[i][j][k][p] = np.array(UnitLength(Gas.Performance))
                 Sys_Perform[i][j][k][p] = np.array(UnitLength(list(Shelby_County.Performance)))
     
-    
+                
+                No_Geo_Earth = EarthquakeSys(Shelby_County, LonIter[i], LatIter[j], IntIter[k])
+                No_Geo_Earth.NodeFailIndex = Earth.NodeFailIndex1
+                
+                print(1, No_Geo_Earth.NodeFailIndex[0], 2, Earth.NodeFailIndex[0])
+
+                while(1):
+                    No_Geo_Earth.AdjUpdate()
+                    No_Geo_Earth.FlowUpdate()
+                    No_Geo_Earth.CascadFail()
+                    No_Geo_Earth.Performance(AnalType)
+                    if((No_Geo_Earth.NodeFailIndex[-1] == No_Geo_Earth.NodeFailIndex[-2]) or (len(Water.Performance) == 20)):
+                        break
+                No_Geo_Sys_Water_Perform[i][j][k][p] = np.array(UnitLength(Water.Performance))
+                No_Geo_Sys_Power_Perform[i][j][k][p] = np.array(UnitLength(Power.Performance))
+                No_Geo_Sys_Gas_Perform[i][j][k][p] = np.array(UnitLength(Gas.Performance))
+                No_Geo_Sys_Perform[i][j][k][p] = np.array(UnitLength(list(Shelby_County.Performance)))
+
+
                 ##Single Network Simulation
                 for Network in Shelby_County.Networks:
                     Network.FlowAdj = []

@@ -33,7 +33,7 @@ class EarthquakeSys:
         self.t = 0
         
         self.Target.TimeAdj = []
-        self.Target.TimeAdj.append(copy.copy(Shelby_County.Adj))
+        self.Target.TimeAdj.append(copy.deepcopy(Shelby_County.Adj))
         
         ##Keep Track the whole process
         self.NodeFail = []
@@ -60,7 +60,7 @@ class EarthquakeSys:
         #Failure due to Disruption
         self.NodeFail.append(self.NodeFailProb > self.NodeFailRand)
         self.NodeFailIndex.append(list(np.where(self.NodeFail[-1] == True)[0]))  
-        self.NodeFailIndex1 = copy.copy(self.NodeFailIndex)
+        self.NodeFailIndex1 = copy.deepcopy(self.NodeFailIndex)
     
     def GeoDepenFailProb(self): ##Only happens rightly after the earthquake
         self.GeoNodeFailProb = []
@@ -77,9 +77,10 @@ class EarthquakeSys:
         for i in range(len(self.GeoNodeFailProb)):
             if(self.GeoNodeFailProb[i][1] > self.NodeFailRand[i]):
                 self.NodeFailIndex[-1].append(self.GeoNodeFailProb[i][0])
+                
         
     def AdjUpdate(self):
-        Adj = copy.copy(self.Target.TimeAdj[-1])
+        Adj = copy.deepcopy(self.Target.TimeAdj[-1])
         """
         gama = 0.8
         for i in self.NodeFailIndex[-1]:
@@ -177,7 +178,7 @@ class EarthquakeSys:
         self.Target.FlowAdj.append(Flow)
         
     def CascadFail(self):
-        self.NodeFailIndex.append(copy.copy(self.NodeFailIndex[-1]))
+        self.NodeFailIndex.append(copy.deepcopy(self.NodeFailIndex[-1]))
         for i in range(Shelby_County.NodeNum):
             FlowInNode = np.sum(self.Target.FlowAdj[-1][:, i])
             FlowInNode0 = np.sum(self.Target.FlowAdj[0][:, i])

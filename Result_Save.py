@@ -93,8 +93,11 @@ IntenList = [0, 30, 45, 50, 60, 70, 100]
 DisrupLat = 0
 DisrupLon = 0
 X = np.arange(0, 20, 1)
-A, B = IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
-C = IntenThresh(IntIter, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
+##A, B = IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
+##C = IntenThresh(IntIter, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
+
+A, B = IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, No_Geo_Sys_Perform, X)
+C = IntenThresh(IntIter, DisrupLat, DisrupLon, Sys_Perform, No_Geo_Sys_Perform, X)
 
 
 ##Heatmap of Earthquake Location Affection
