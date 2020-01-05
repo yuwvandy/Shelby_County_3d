@@ -24,7 +24,7 @@ DisrupLon = -90
 DisrupLat = 28
 DisrupIntensity = 6
 
-
+sssss
 class EarthquakeSys:
     def __init__(self, Target, DisrupLon, DisrupLat, DisrupIntensity):##Type 1 - System, Type 2 - Single Network
         self.Target = Target
