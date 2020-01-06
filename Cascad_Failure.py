@@ -62,13 +62,13 @@ class EarthquakeSys:
         self.NodeFailIndex.append(list(np.where(self.NodeFail[-1] == True)[0]))  
         self.NodeFailIndex1 = copy.deepcopy(self.NodeFailIndex)
     
-    def GeoDepenFailProb(self): ##Only happens rightly after the earthquake
+    def GeoDepenFailProb(self, DistCoff): ##Only happens rightly after the earthquake
         self.GeoNodeFailProb = []
         for node1 in range(self.Target.NodeNum):
             Temp = 1
             if(node1 not in self.NodeFailIndex[-1]):
                 for node2 in self.NodeFailIndex[-1]:
-                    Temp *= np.exp(-1/10000*self.Target.Dist[node1, node2])
+                    Temp *= np.exp(-1/DistCoff*self.Target.Dist[node1, node2])
                 self.GeoNodeFailProb.append([node1, 1 - Temp])
         
     def GeoMCSimulation(self):
@@ -212,7 +212,8 @@ Earth.DistanceCalculation()
 Earth.NodeFailProbCalculation()
 Earth.MCFailureSimulation()
 
-Earth.GeoDepenFailProb()
+Dist_Coffi = 10
+Earth.GeoDepenFailProb(Dist_Coffi)
 Earth.GeoMCSimulation()
 
 while(1):
