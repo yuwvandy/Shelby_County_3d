@@ -28,7 +28,8 @@ class EarthquakeNet:
     def IniFailCopy(self):
         self.Target.NodeFailIndex.append([])
         for node in self.Target.NodeSeries:
-            if(self.Target.WholeNodeSeries[node] in self.FailSys.NodeFailIndex1[0]):
+            if(self.Target.WholeNodeSeries[node] in self.FailSys.NodeFailIndex1[0]): #Geo, no physical
+            #if(self.Target.WholeNodeSeries[node] in self.FailSys.NodeFailIndex[0]):
                 self.Target.NodeFailIndex[-1].append(node)
         
     def AdjUpdate(self):

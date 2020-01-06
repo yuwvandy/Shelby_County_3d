@@ -24,7 +24,7 @@ DisrupLon = -90
 DisrupLat = 28
 DisrupIntensity = 6
 
-sssss
+
 class EarthquakeSys:
     def __init__(self, Target, DisrupLon, DisrupLat, DisrupIntensity):##Type 1 - System, Type 2 - Single Network
         self.Target = Target
@@ -68,7 +68,7 @@ class EarthquakeSys:
             Temp = 1
             if(node1 not in self.NodeFailIndex[-1]):
                 for node2 in self.NodeFailIndex[-1]:
-                    Temp *= np.exp(-1/self.Target.Dist[node1, node2])
+                    Temp *= np.exp(-1/10000*self.Target.Dist[node1, node2])
                 self.GeoNodeFailProb.append([node1, 1 - Temp])
         
     def GeoMCSimulation(self):

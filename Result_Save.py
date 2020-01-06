@@ -29,7 +29,7 @@ def IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, 
     plt.ylabel('System Performance', fontweight='bold')
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left', ncol=1, frameon = 0)
     plt.grid(True)
-    plt.savefig("SystemPerform.png", dpi = 2000, bbox_inches='tight')
+    #plt.savefig("SystemPerform.png", dpi = 2000, bbox_inches='tight')
     plt.show()
     
     
@@ -43,7 +43,7 @@ def IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, 
     plt.ylabel('Interdependency Strength', fontweight='bold')
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left', ncol=1, frameon = 0)
     plt.grid(True)
-    plt.savefig("InterStrength1.png", dpi = 2000, bbox_inches='tight')
+    #plt.savefig("InterStrength1.png", dpi = 2000, bbox_inches='tight')
     plt.show()
     
     return AveSysPerform, AveSinSysPerform
@@ -78,7 +78,7 @@ def IntenThresh(IntInter, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
     plt.xlabel('The Magnitude of Earthquake(Mw)',  fontweight='bold')
     plt.ylabel('Interdepedency Strength',  fontweight='bold')
     plt.grid(True)
-    plt.savefig("InterStrength2.png", dpi = 2000, bbox_inches='tight') 
+    #plt.savefig("InterStrength2.png", dpi = 2000, bbox_inches='tight') 
     plt.show()
     
     
@@ -93,11 +93,11 @@ IntenList = [0, 30, 45, 50, 60, 70, 100]
 DisrupLat = 0
 DisrupLon = 0
 X = np.arange(0, 20, 1)
-##A, B = IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
-##C = IntenThresh(IntIter, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
+A, B = IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
+C = IntenThresh(IntIter, DisrupLat, DisrupLon, Sys_Perform, Sin_Sys_Perform, X)
 
-A, B = IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, No_Geo_Sys_Perform, X)
-C = IntenThresh(IntIter, DisrupLat, DisrupLon, Sys_Perform, No_Geo_Sys_Perform, X)
+##A, B = IntenPerform(IntenList, DisrupLat, DisrupLon, Sys_Perform, No_Geo_Sys_Perform, X)
+##C = IntenThresh(IntIter, DisrupLat, DisrupLon, Sys_Perform, No_Geo_Sys_Perform, X)
 
 
 ##Heatmap of Earthquake Location Affection
