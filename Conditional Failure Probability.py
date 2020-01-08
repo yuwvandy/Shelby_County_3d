@@ -59,6 +59,11 @@ def DistConProb(ConFailProb, Dist):
     
     return 
 
+def FailProb(T, NFailCount):
+    NFailProb = NFailCount/T
+    
+    return NFailProb
+
 #Parameter Specification
 T = 100 #Simulation times
 
@@ -82,16 +87,18 @@ for t in range(T):
     NFailCount, NNFailCount = FailCount(Shelby_County, NodeFailList, NFailCount, NNFailCount)
     
     print("Iteration {}".format(t))
-    
+
+NFailProb = FailProb(T, NFailCount)    
 ConFailProb = FailCondProb(Shelby_County, NFailCount, NNFailCount, ConFailProb)
+
 
 ##Heatmap          
 ConProb_Heatmap = sns.heatmap(ConFailProb)
-#Dist_Heatmap = sns.heatmap(Shelby_County.Dist)
+Dist_Heatmap = sns.heatmap(Shelby_County.Dist)
 
 ##Relationship between distance and Conditional Probability
-List_ConProb = np.reshape(len(ConFailProb)**2)
-List_Dist = np.reshape(len(Shelby_County.Dist)**2)
+ConFailProb = ConFailProb.reshape(len(ConFailProb)**2)
+Shelby_County.Dist = Shelby_County.Dist.reshape(len(Shelby_County.Dist)**2)
 
 
 

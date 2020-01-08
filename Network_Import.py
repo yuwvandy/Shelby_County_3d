@@ -6,8 +6,8 @@ Created on Thu Dec 12 15:03:15 2019
 """
 import os
 
-os.environ['PROJ_LIB'] = r"E:\Anaconda\pkgs\proj4-5.2.0-ha925a31_1\Library\share"
-#os.environ['PROJ_LIB'] = r"C:\Users\wany105\AppData\Local\Continuum\anaconda3\pkgs\proj4-5.2.0-ha925a31_1\Library\share"
+#os.environ['PROJ_LIB'] = r"E:\Anaconda\pkgs\proj4-5.2.0-ha925a31_1\Library\share"
+os.environ['PROJ_LIB'] = r"C:\Users\wany105\AppData\Local\Continuum\anaconda3\pkgs\proj4-5.2.0-ha925a31_1\Library\share"
 
 """
 The environment is different among different computers. Please check where the epsg file is in your own computer and change the path in os.environ accordingly
@@ -44,20 +44,20 @@ def BaseMapSet(Type):
     return Base
 
 #Laptop
-WN = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\WaterNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-WE = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\WaterEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-PN = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\PowerNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-PE = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\PowerEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-GN = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\GasNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-GE = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\GasEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+#WN = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\WaterNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+#WE = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\WaterEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+#PN = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\PowerNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+#PE = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\PowerEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+#GN = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\GasNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+#GE = pd.read_excel (r'C:\Users\10624\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\GasEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
 
 #Desktop
-#WN = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\WaterNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-#WE = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\WaterEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-#PN = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\PowerNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-#PE = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\PowerEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-#GN = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\GasNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
-#GE = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\GasEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+WN = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\WaterNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+WE = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\WaterEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+PN = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\PowerNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+PE = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\PowerEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+GN = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\GasNodes.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
+GE = pd.read_excel (r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_DataRead\GasEdges.xlsx') #for an earlier version of Excel, you may need to use the file extension of 'xls'
 
 
 Infras_Dict = [[WN, WE], [PN, PE], [GN, GE]]
