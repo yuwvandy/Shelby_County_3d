@@ -164,10 +164,12 @@ class System:
         for Network in self.Networks:
             Network.WholeSupplySeries = np.arange(Network.IniNum, Network.IniNum + Network.SupplyNum, 1)
             Network.WholeDemandSeries = np.arange(Network.IniNum + Network.SupplyNum, Network.EndNum, 1)
-        
+            
         
         self.CoorlistX = np.concatenate((self.Networks[0].X, self.Networks[1].X, self.Networks[2].X))
         self.CoorlistY = np.concatenate((self.Networks[0].Y, self.Networks[1].Y, self.Networks[2].Y))
+        
+        self.Whole2NetworkSeries = np.concatenate((self.Networks[0].NodeSeries, (self.Networks[1].NodeSeries), (self.Networks[2].NodeSeries)))
         
     def Dist(self):
         self.Dist = np.zeros([self.NodeNum, self.NodeNum])
@@ -181,6 +183,15 @@ class System:
         for Network in self.Networks:
             self.Adj[Network.IniNum:Network.EndNum, Network.IniNum:Network.EndNum] = Network.Adj
             self.Capacity[Network.IniNum:Network.EndNum, Network.IniNum:Network.EndNum] = Network.Capacity
+    
+    def LinkNodeCoor(self):
+        self.LinkListCoor = []
+        for i in range(self.NodeNum):
+            for j in range(self.NodeNum):
+                if(self.Adj[i, j] == 1):
+                    self.LinkListCoor.append([i, j, self.CoorlistX[i], self.CoorlistX[j], self.CoorlistY[i], self.CoorlistY[j], self.Dist[i, j]])
+        self.LinkListCoor = np.array(self.LinkListCoor)
+                    
 
     def SysVisual(self, Normalize_Flow):
         plt.figure(figsize = (20, 12))
@@ -233,6 +244,7 @@ Gas.NetworkVisual()
 Shelby_County.DataCombine()
 Shelby_County.Dist()
 Shelby_County.AdjMatrix()
+Shelby_County.LinkNodeCoor()
 
 Shelby_County.DemandNum = 0
 Shelby_County.SupplyNum = 0

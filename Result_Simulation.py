@@ -11,7 +11,7 @@ def UnitLength(Link):
         A.append(A[-1])
     return A
 
-T = 100
+T = 50
 """
 LonIter = np.arange(-95, -84.9, 0.1)
 LatIter = np.arange(30, 40.1, 0.1)
@@ -54,8 +54,9 @@ for k in range(len(IntIter)):
                 Earth = EarthquakeSys(Shelby_County, LonIter[i], LatIter[j], IntIter[k])
                 Earth.DistanceCalculation()
                 Earth.NodeFailProbCalculation()
-                Earth.MCFailureSimulation()                
-                Earth.GeoDepenFailProb()
+                Earth.LinkFailProbCalculation(50, 0.5) #m, K
+                Earth.MCFailureSimulation()              
+                Earth.GeoDepenFailProb(10000)#Dist_Coffi
                 Earth.GeoMCSimulation()
                 
 
@@ -77,8 +78,9 @@ for k in range(len(IntIter)):
                 Shelby_County_Flow.PostProcess(Shelby_County)
                 No_Geo_Earth = EarthquakeSys(Shelby_County, LonIter[i], LatIter[j], IntIter[k])
                 No_Geo_Earth.NodeFailIndex = Earth.NodeFailIndex1
+                No_Geo_Earth.LinkFailProb = Earth.LinkFailProb
+                No_Geo_Earth.LinkFailIndex = Earth.LinkFailIndex
                 
-                print(1, No_Geo_Earth.NodeFailIndex[0], 2, Earth.NodeFailIndex[0])
 
                 while(1):
                     No_Geo_Earth.AdjUpdate()
@@ -123,16 +125,3 @@ for k in range(len(IntIter)):
                 Diff_Perform[i][j][k][p] = (Sin_Sys_Perform[i][j][k][p] - Sys_Perform[i][j][k][p])/Sys_Perform[i][j][k][p]
 
 
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sys_Water_Perform.npy', Sys_Water_Perform)
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sys_Power_Perform.npy', Sys_Power_Perform)
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sys_Gas_Perform.npy', Sys_Gas_Perform)
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sys_Perform.npy', Sys_Perform)
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sin_Water_Perform.npy', Sin_Water_Perform)
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sin_Gas_Perform.npy', Sin_Gas_Perform)
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sin_Power_Perform.npy', Sin_Power_Perform)
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sin_Sys_Perform.npy', Sin_Sys_Perform)
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', Diff_Perform)   
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', No_Geo_Sys_Water_Perform)   
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', No_Geo_Sys_Power_Perform)   
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', No_Geo_Sys_Gas_Perform)   
-np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', No_Geo_Sys_Perform)   

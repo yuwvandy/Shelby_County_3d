@@ -20,6 +20,17 @@ def PGAV(M_w, Distance):
     PGV = np.power(10, 2.04 + 0.422*(M_w - 6) - 0.0373*(M_w - 6)**2 - np.log10(Distance))
     return PGA, PGV
 
+def RR(PGV, K):
+    RRRate = K*0.00187*PGV
+    return RRRate
+
+def LinkSeg(Link, m):
+    Coor = np.zeros([m + 1, 2])
+    for i in range(m + 1):
+        Coor[i, 0] = Link[2] + i/m*(Link[3] - Link[2])
+        Coor[i, 1] = Link[4] + i/m*(Link[5] - Link[4])
+    return Coor
+    
 DisrupLon = -90
 DisrupLat = 28
 DisrupIntensity = 6
@@ -38,6 +49,7 @@ class EarthquakeSys:
         ##Keep Track the whole process
         self.NodeFail = []
         self.NodeFailIndex = []
+        self.LinkFailIndex = []
         
         for Network in self.Target.Networks:
             Network.SatisfyDemand = []
@@ -54,13 +66,31 @@ class EarthquakeSys:
             self.NodeFailProb[Network.WholeNodeSeries[Network.SupplySeries]] = norm.cdf((np.log(self.PGA[Network.WholeNodeSeries[Network.SupplySeries]]) - Network.SLamb)/Network.SZeta)
             self.NodeFailProb[Network.WholeNodeSeries[Network.DemandSeries]] = norm.cdf((np.log(self.PGA[Network.WholeNodeSeries[Network.DemandSeries]]) - Network.DLamb)/Network.DZeta)
     
+    def LinkFailProbCalculation(self, m, K):
+        RRlink = np.zeros(len(self.Target.LinkListCoor))
+        self.LinkFailProb = np.zeros([len(self.Target.LinkListCoor), 3])
+        for i in range(len(self.Target.LinkListCoor)):
+            Link = self.Target.LinkListCoor[i]
+            LinkCoor = LinkSeg(Link, m)
+            LinkR = np.sqrt((LinkCoor[:, 0] - self.DisrupX)**2 + (LinkCoor[:, 1] - self.DisrupY)**2)/1000
+            LinkPGA, LinkPGV = PGAV(self.M_w, LinkR)
+            LinkRR = RR(LinkPGV, K)
+            self.LinkFailProb[i, 0], self.LinkFailProb[i, 1], self.LinkFailProb[i, 2] = Link[0], Link[1], 1 - np.exp(-Link[6]/m*np.sum(LinkRR))
+
+            
     def MCFailureSimulation(self):
         self.NodeFailRand = np.random.rand(len(self.NodeFailProb))
+        self.LinkFailRand = np.random.rand(len(self.LinkFailProb))
         
-        #Failure due to Disruption
+        #Node Failure due to Disruption
         self.NodeFail.append(self.NodeFailProb > self.NodeFailRand)
         self.NodeFailIndex.append(list(np.where(self.NodeFail[-1] == True)[0]))  
         self.NodeFailIndex1 = copy.deepcopy(self.NodeFailIndex)
+        
+        #Link Failure due to Disruption
+        for i in range(len(self.LinkFailRand)):
+            if(self.LinkFailProb[i, 2] > self.LinkFailRand[i]):
+                self.LinkFailIndex.append(i)
     
     def GeoDepenFailProb(self, DistCoff): ##Only happens rightly after the earthquake
         self.GeoNodeFailProb = []
@@ -90,9 +120,12 @@ class EarthquakeSys:
                 if(Adj[j][i] != gama):
                     Adj[j][i] = gama
         """
-        
+        #Due to Node Failure
         Adj[self.NodeFailIndex[-1], :] = 0
         Adj[:, self.NodeFailIndex[-1]] = 0
+
+        #Due to Link Failure
+        Adj[self.LinkFailProb[self.LinkFailIndex, 0].astype(int), self.LinkFailProb[self.LinkFailIndex, 1].astype(int)] = 0
         
         self.Target.TimeAdj.append(Adj)
         
@@ -210,6 +243,7 @@ class EarthquakeSys:
 Earth = EarthquakeSys(Shelby_County, DisrupLon, DisrupLat, DisrupIntensity)
 Earth.DistanceCalculation()
 Earth.NodeFailProbCalculation()
+Earth.LinkFailProbCalculation(50, 0.5) #m, K
 Earth.MCFailureSimulation()
 
 Dist_Coffi = 10

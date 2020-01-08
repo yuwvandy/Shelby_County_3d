@@ -27,10 +27,20 @@ class EarthquakeNet:
 
     def IniFailCopy(self):
         self.Target.NodeFailIndex.append([])
+        self.Target.LinkFailIndex = []
         for node in self.Target.NodeSeries:
             if(self.Target.WholeNodeSeries[node] in self.FailSys.NodeFailIndex1[0]): #Geo, no physical
             #if(self.Target.WholeNodeSeries[node] in self.FailSys.NodeFailIndex[0]):
                 self.Target.NodeFailIndex[-1].append(node)
+        
+        for FailLinkIndex in self.FailSys.LinkFailIndex:
+            node1 = int(self.FailSys.LinkFailProb[FailLinkIndex, 0])
+            node2 = int(self.FailSys.LinkFailProb[FailLinkIndex, 1])
+            if(node1 in self.Target.WholeNodeSeries and node2 in self.Target.WholeNodeSeries):
+                self.Target.LinkFailIndex.append([self.FailSys.Target.Whole2NetworkSeries[node1], self.FailSys.Target.Whole2NetworkSeries[node2]])
+
+        self.Target.LinkFailIndex = np.array(self.Target.LinkFailIndex)
+        
         
     def AdjUpdate(self):
         Adj = copy.deepcopy(self.Target.TimeAdj[-1])
@@ -46,6 +56,9 @@ class EarthquakeNet:
         
         Adj[self.Target.NodeFailIndex[-1], :] = 0
         Adj[:, self.Target.NodeFailIndex[-1]] = 0
+        
+        for i in range(len(self.Target.LinkFailIndex)):
+            Adj[self.Target.LinkFailIndex[i, 0], self.Target.LinkFailIndex[i, 1]] = 0
         
         self.Target.TimeAdj.append(Adj)
         
