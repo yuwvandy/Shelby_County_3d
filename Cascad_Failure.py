@@ -4,16 +4,17 @@ Created on Sun Dec 15 16:56:24 2019
 
 @author: wany105
 """
-Shelby_County_Flow.PostProcess(Shelby_County)
-Shelby_County.SysVisual(Normalize(Shelby_County.FlowAdj[0]))
-
-
 import numpy as np
 from scipy.stats import norm
 import copy
 import matplotlib.pyplot as plt 
-LowBound = 0.3
-UpBound = 1.5
+
+LowBound_Node = 0.3
+UpBound_Node = 1.5
+UpBound_Link = 3
+Shelby_County_Flow.PostProcess(Shelby_County, UpBound_Node, UpBound_Link)
+Shelby_County.SysVisual(Normalize(Shelby_County.FlowAdj[0]))
+
 
 def PGAV(M_w, Distance):
     PGA = np.power(10, 3.79 + 0.298*(M_w - 6) - 0.0536*(M_w - 6)**2 - np.log10(Distance) - 0.00135*Distance)
@@ -32,8 +33,8 @@ def LinkSeg(Link, m):
     return Coor
     
 DisrupLon = -90
-DisrupLat = 28
-DisrupIntensity = 6
+DisrupLat = 30
+DisrupIntensity = 5
 
 
 class EarthquakeSys:
@@ -50,11 +51,11 @@ class EarthquakeSys:
         self.NodeFail = []
         self.NodeFailIndex = []
         self.LinkFailIndex = []
+        self.LinkCasFail = []
         
         for Network in self.Target.Networks:
             Network.SatisfyDemand = []
             Network.Performance = [1]            
-        
         
     def DistanceCalculation(self):
         self.DisrupNodeDistance = np.sqrt((self.Target.CoorlistX - self.DisrupX)**2 + (self.Target.CoorlistY - self.DisrupY)**2)/1000 #Change the unit to km
@@ -126,6 +127,9 @@ class EarthquakeSys:
 
         #Due to Link Failure
         Adj[self.LinkFailProb[self.LinkFailIndex, 0].astype(int), self.LinkFailProb[self.LinkFailIndex, 1].astype(int)] = 0
+        
+        for link in self.LinkCasFail:
+            Adj[link[0]][link[1]] = 0
         
         self.Target.TimeAdj.append(Adj)
         
@@ -210,16 +214,22 @@ class EarthquakeSys:
         
         self.Target.FlowAdj.append(Flow)
         
-    def CascadFail(self):
+    def CascadFail(self, LBNode, UBNode, UBLink):
         self.NodeFailIndex.append(copy.deepcopy(self.NodeFailIndex[-1]))
         for i in range(Shelby_County.NodeNum):
             FlowInNode = np.sum(self.Target.FlowAdj[-1][:, i])
             FlowInNode0 = np.sum(self.Target.FlowAdj[0][:, i])
             
-            if(FlowInNode < LowBound*FlowInNode0 and (i not in self.NodeFailIndex[-1])):
+            if(FlowInNode < LBNode*FlowInNode0 and (i not in self.NodeFailIndex[-1])):
                 self.NodeFailIndex[-1].append(i)
-            if(FlowInNode > UpBound*FlowInNode0 and (i not in self.NodeFailIndex[-1])):
+            if(FlowInNode > UBNode*FlowInNode0 and (i not in self.NodeFailIndex[-1])):
                 self.NodeFailIndex[-1].append(i)
+            
+            for j in range(Shelby_County.NodeNum):
+                if(self.Target.FlowAdj[-1][i, j] > self.Target.LinkCap[i, j] and \
+                   i not in self.NodeFailIndex[-1] and j not in self.NodeFailIndex[-1]\
+                   and [i, j] not in self.LinkCasFail):
+                    self.LinkCasFail.append([i, j])
 
     
     def Performance(self, Type):
@@ -243,17 +253,17 @@ class EarthquakeSys:
 Earth = EarthquakeSys(Shelby_County, DisrupLon, DisrupLat, DisrupIntensity)
 Earth.DistanceCalculation()
 Earth.NodeFailProbCalculation()
-Earth.LinkFailProbCalculation(50, 0.5) #m, K
+Earth.LinkFailProbCalculation(100, 0.5) #m, K
 Earth.MCFailureSimulation()
 
-Dist_Coffi = 10
+Dist_Coffi = 10000
 Earth.GeoDepenFailProb(Dist_Coffi)
 Earth.GeoMCSimulation()
 
 while(1):
     Earth.AdjUpdate()
     Earth.FlowUpdate()
-    Earth.CascadFail()
+    Earth.CascadFail(LowBound_Node, UpBound_Node, UpBound_Link)
     Earth.Performance("SingleSum")
     if(Earth.NodeFailIndex[-1] == Earth.NodeFailIndex[-2]):
         break

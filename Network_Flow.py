@@ -16,6 +16,8 @@ class Flow:
     def __init__(self, System):
         self.System = System
         self.temp, self.WholeFlow, self.Obj = 1, dict(), ""
+        self.System.LinkCap = np.zeros([self.System.NodeNum, self.System.NodeNum])
+        self.System.NodeCap = np.zeros(self.System.NodeNum)
         
         
     def FlowProb(self, System):
@@ -109,9 +111,9 @@ class Flow:
         self.prob.solve()
         print("Status", LpStatus[self.prob.status])
     
-    def PostProcess(self, System):
+    def PostProcess(self, System, UpBNode, UpBLink):
         System.FlowAdj = []
-        System.FlowAdj.append(np.zeros([System.NodeNum, System.NodeNum]))            
+        System.FlowAdj.append(np.zeros([System.NodeNum, System.NodeNum]))         
         
         for v in self.prob.variables():
             """
@@ -135,7 +137,18 @@ class Flow:
                     continue
 
         System.WholeFlow.append(self.WholeFlow)
-
+        
+        Temp = np.average(System.FlowAdj[0])
+        for i in range(System.NodeNum):
+            for j in range(System.NodeNum):
+                if(System.FlowAdj[0][i, j] == 0):
+                    System.LinkCap[i, j] = Temp*UpBLink
+                else:
+                    System.LinkCap[i, j] = System.FlowAdj[0][i, j]*UpBLink
+        #Some link might don't have any flow
+        
+        for i in range(System.NodeNum):
+            System.NodeCap[i] = System.FlowAdj[0][:, i].sum()*UpBNode
         
 Shelby_County_Flow = Flow(Shelby_County)
 Shelby_County_Flow.FlowProb(Shelby_County)

@@ -4,7 +4,19 @@ Created on Wed Dec 18 10:44:11 2019
 
 @author: wany105
 """
-
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sys_Water_Perform.npy', Sys_Water_Perform)
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sys_Power_Perform.npy', Sys_Power_Perform)
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sys_Gas_Perform.npy', Sys_Gas_Perform)
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sys_Perform.npy', Sys_Perform)
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sin_Water_Perform.npy', Sin_Water_Perform)
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sin_Gas_Perform.npy', Sin_Gas_Perform)
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sin_Power_Perform.npy', Sin_Power_Perform)
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Sin_Sys_Perform.npy', Sin_Sys_Perform)
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', Diff_Perform)   
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', No_Geo_Sys_Water_Perform)   
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', No_Geo_Sys_Power_Perform)   
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', No_Geo_Sys_Gas_Perform)   
+np.save(r'C:\Users\wany105\OneDrive - Vanderbilt\Research\ShelbyCounty_Model\Result_Geo_Phy_Distance10000_3\Diff_Perform.npy', No_Geo_Sys_Perform)   
 
 
 
