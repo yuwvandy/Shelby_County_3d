@@ -39,18 +39,26 @@ class Res_System:
         self.Flow_dic = dict()
         self.XN_dic = dict()
         self.XL_dic = dict()
+        self.NodeOp_dic = dict()
+        self.LinkOp_dic = dict()
+        
+        self.InitAdj = np.zeros([self.NodeNum, self.NodeNum])
+        self.InitFlow = np.zeros([self.NodeNum, self.NodeNum])
+        self.InitLinkOp = np.zeros([self.NodeNum, self.NodeNum])
+        self.InitNodeOp = np.zeros(self.NodeNum)
     
     def InitUpdate(self, Disruption):#t1- the start time of the restoration
         if(self.t1 < len(self.InitSystem.Performance)):
-            self.Adj[0, :, :] = self.InitSystem.TimeAdj[self.t1]
-            self.Flow[0, :, :] = self.InitSystem.FlowAdj[self.t1]
+            self.InitAdj = self.InitSystem.TimeAdj[self.t1]
+            self.InitFlow = self.InitSystem.FlowAdj[self.t1]
         else:
-            self.Adj[0, :, :] = self.InitSystem.TimeAdj[-1]
-            self.Flow[0, :, :] = self.InitSystem.FlowAdj[-1]
+            self.InitAdj = self.InitSystem.TimeAdj[-1]
+            self.InitFlow = self.InitSystem.FlowAdj[-1]
     
-        self.LinkOp[0, :, :] = self.Flow[0, :, :]/self.LinkCap
+        self.InitLinkOp = self.InitFlow/self.LinkCap
+        
         for node in range(self.NodeNum):
-            self.NodeOp[0, node] = self.Flow[0][:, node].sum()/self.NodeCap[node]
+            self.InitNodeOp[node] = self.InitFlow[:, node].sum()/self.NodeCap[node]
             
     def RepairRatio(self, beta):##Repair Speed: Capacity/Constant, quantifying how much capacity can we repair 
         self.NReRatio = self.NodeCap/beta
@@ -89,12 +97,25 @@ class Res_System:
                 self.XN_dic['XN{}_{}'.format(t, node1)] = [eval('self.XN{}_{}'.format(t, node1)), None]
                 
                 self.XN_Object[t, node1] = eval('self.XN{}_{}'.format(t, node1))
+                
+                exec("self.NodeOp{}_{} = self.mdl.continuous_var(name = 'NodeOp{}_{}')".format(t, node1, t, node1))
+                
+                self.NodeOp_dic['NodeOp{}_{}'.format(t, node1)] = [eval('self.NodeOp{}_{}'.format(t, node1)), None]
+                
+                self.NodeOp_Object[t, node1] = eval('self.NodeOp{}_{}'.format(t, node1))
+                
                 for node2 in range(self.NodeNum):
                     exec("self.XL{}_{}_{} = self.mdl.binary_var(name = 'XL{}_{}_{}')".format(t, node1, node2, t, node1, node2))
                     
                     self.XL_dic['XL{}_{}_{}'.format(t, node1, node2)] = [eval('self.XL{}_{}_{}'.format(t, node1, node2)), None]
                     
                     self.XL_Object[t, node1, node2] = eval('self.XL{}_{}_{}'.format(t, node1, node2))
+                    
+                    exec("self.LinkOp{}_{}_{} = self.mdl.continuous_var(name = 'LinkOp{}_{}_{}')".format(t, node1, node2, t, node1, node2))
+                
+                    self.LinkOp_dic['LinkOp{}_{}_{}'.format(t, node1, node2)] = [eval('self.LinkOp{}_{}_{}'.format(t, node1, node2)), None]
+                
+                    self.LinkOp_Object[t, node1, node2] = eval('self.LinkOp{}_{}_{}'.format(t, node1, node2))
                     
         #f_tij: Continuous Variable determining the value of the flow
         for t in range(T):
@@ -125,18 +146,45 @@ class Res_System:
                 self.mdl.add_constraint((t >= self.tfN_Object[node1]) == (self.XN_Object[t, node1] == 0))
                 self.mdl.add_constraint(self.mdl.sum(self.XN_Object[:, node1]) <= (self.tfN_Object[node1] - self.trN_Object[node1] - 1))
                 self.mdl.add_constraint(self.mdl.sum(self.XN_Object[:, node1]) >= (self.tfN_Object[node1] - self.trN_Object[node1] - 1))
-        #The current operability
+
                 for node2 in range(self.NodeNum):
                     self.mdl.add_constraint((t <= self.trL_Object[node1, node2] - 1) == (self.XL_Object[t, node1, node2] == 0))
                     self.mdl.add_constraint((t >= self.trL_Object[node1, node2]) == (self.XL_Object[t, node1, node2] == 0))
                     self.mdl.add_constraint(self.mdl.sum(self.XL_Object[:, node1, node2]) <= (self.tfL_Object[node1, node2] - self.trL_Object[node1, node2] - 1))
                     self.mdl.add_constraint(self.mdl.sum(self.XL_Object[:, node1, node2]) >= (self.tfL_Object[node1, node2] - self.trL_Object[node1, node2] - 1))
+        
+        #The Current Operability Variable
+        for t in range(self.T - 1):
+            for node1 in range(self.NodeNum):
+                if(t == 0):
+                    self.mdl.add_constraint(self.NodeOp_Object[t, node1] <= self.InitNodeOp[node1])
+                    self.mdl.add_constraint(self.NodeOp_Object[t, node1] >= self.InitNodeOp[node1])
+                self.mdl.add_constraint(self.NodeOp_Object[t + 1, node1] >= self.NodeOp_Object[t, node1] + self.NReRatio[node1]*self.XN_Object[t, node1])
+                self.mdl.add_constraint(self.NodeOp_Object[t + 1, node1] <= self.NodeOp_Object[t, node1] + self.NReRatio[node1]*self.XN_Object[t, node1])
+                for node2 in range(self.NodeNum):
+                    if(t == 0):
+                        self.mdl.add_constraint(self.LinkOp_Object[t, node1, node2] <= self.InitLinkOp[node1, node2])
+                        self.mdl.add_constraint(self.LinkOp_Object[t, node1, node2] >= self.InitLinkOp[node1, node2])
+                    self.mdl.add_constraint(self.LinkOp_Object[t + 1, node1, node2] >= self.LinkOp_Object[t, node1, node2] + self.LReRatio[node1, node2]*self.XL_Object[t, node1, node2])
+                    self.mdl.add_constraint(self.LinkOp_Object[t + 1, node1, node2] <= self.LinkOp_Object[t, node1, node2] + self.LReRatio[node1, node2]*self.XL_Object[t, node1, node2])
+                    
+        #Flow no decreasing but always smaller than the operability ratio*capacity
+        for t in range(self.T):
+            for node1 in range(self.NodeNum):
+                for node2 in range(self.NodeNum):
+                    if(t != T - 1):
+                        self.mdl.add_constraint(self.Flow_Object[t, node1, node2] <= self.Flow_Object[t + 1, node1, node2])
+                        
+                    self.mdl.add_constraint(self.Flow_Object[t, node1, node2] <= self.LinkOp_Object[t, node1, node2]*self.LinkCap[node1, node2])
                 
+                self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, node1]) <= self.NodeOp_Object[t, node1]*self.NodeCap[node1]) 
+            
+
+         
+        
             
      
 
-    
-        
 #T, The Whole Simulation Time; t1: The Beginning of the Restoration Time
 T, t1 = 10, 3
 #The speed of repairment, how much capaciity can it be restored per time unit
@@ -147,6 +195,7 @@ Shelby_County_Res.RepairRatio(beta)
 Shelby_County_Res.OptModelDefine('Sc_op')
 Shelby_County_Res.OpVarDefine()
 Shelby_County_Res.OpCtDefine()
+Shelby_County_Res.mdl.print_information()
 
 
 
