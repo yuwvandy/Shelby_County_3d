@@ -121,12 +121,16 @@ class Res_System:
         #1 when current time step t in [tr, tf], 0 otherwise
         for t in range(self.T):
             for node1 in range(self.NodeNum):
-                self.mdl.add_if_then(t < self.trN_Object[node1], self.XN_Object[t, node1] = 0)
-                self.mdl.add_if_then(t >= self.tfN_Object[node1], self.XN_Object[t, node1] = 0)
-                self.mdl.add_constraint(self.mdl.sum(XN in self.XN_Object[:, node1]) = self.trN_Object[node1] - self.tfN_Object[node1])
+                self.mdl.add_constraint((t <= self.trN_Object[node1] - 1) == (self.XN_Object[t, node1] == 0))
+                self.mdl.add_constraint((t >= self.tfN_Object[node1]) == (self.XN_Object[t, node1] == 0))
+                self.mdl.add_constraint(self.mdl.sum(self.XN_Object[:, node1]) <= (self.tfN_Object[node1] - self.trN_Object[node1] - 1))
+                self.mdl.add_constraint(self.mdl.sum(self.XN_Object[:, node1]) >= (self.tfN_Object[node1] - self.trN_Object[node1] - 1))
         #The current operability
-        
-                
+                for node2 in range(self.NodeNum):
+                    self.mdl.add_constraint((t <= self.trL_Object[node1, node2] - 1) == (self.XL_Object[t, node1, node2] == 0))
+                    self.mdl.add_constraint((t >= self.trL_Object[node1, node2]) == (self.XL_Object[t, node1, node2] == 0))
+                    self.mdl.add_constraint(self.mdl.sum(self.XL_Object[:, node1, node2]) <= (self.tfL_Object[node1, node2] - self.trL_Object[node1, node2] - 1))
+                    self.mdl.add_constraint(self.mdl.sum(self.XL_Object[:, node1, node2]) >= (self.tfL_Object[node1, node2] - self.trL_Object[node1, node2] - 1))
                 
             
      

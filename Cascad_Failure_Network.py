@@ -96,9 +96,9 @@ class EarthquakeNet:
         for i in range(Network.NodeNum):
             FlowInNode = np.sum(self.Target.FlowAdj[-1][:, i])
             FlowInNode0 = np.sum(self.Target.FlowAdj[0][:, i])
-            if(FlowInNode < LowBound*FlowInNode0 and (i not in self.Target.NodeFailIndex[-1])):
+            if(FlowInNode < LowBound_Node*FlowInNode0 and (i not in self.Target.NodeFailIndex[-1])):
                 self.Target.NodeFailIndex[-1].append(i)
-            if(FlowInNode > UpBound*FlowInNode0 and (i not in self.Target.NodeFailIndex[-1])):
+            if(FlowInNode > UpBound_Node*FlowInNode0 and (i not in self.Target.NodeFailIndex[-1])):
                 self.Target.NodeFailIndex[-1].append(i)
 
 
