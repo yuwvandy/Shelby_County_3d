@@ -166,7 +166,7 @@ class Res_System:
 
                 for node2 in range(self.NodeNum):
                     self.mdl.add_constraint((t <= self.trL_Object[node1, node2] - 1) == (self.XL_Object[t, node1, node2] == 0))
-                    self.mdl.add_constraint((t >= self.trL_Object[node1, node2]) == (self.XL_Object[t, node1, node2] == 0))
+                    self.mdl.add_constraint((t >= self.tfL_Object[node1, node2]) == (self.XL_Object[t, node1, node2] == 0))
                     self.mdl.add_constraint(self.mdl.sum(self.XL_Object[:, node1, node2]) <= (self.tfL_Object[node1, node2] - self.trL_Object[node1, node2] - 1))
                     self.mdl.add_constraint(self.mdl.sum(self.XL_Object[:, node1, node2]) >= (self.tfL_Object[node1, node2] - self.trL_Object[node1, node2] - 1))
         
@@ -189,17 +189,14 @@ class Res_System:
         for t in range(self.T):
             for node1 in range(self.NodeNum):
                 for node2 in range(self.NodeNum):
-                    if(t != T - 1):
-                        self.mdl.add_constraint(self.Flow_Object[t, node1, node2] <= self.Flow_Object[t + 1, node1, node2])
-                    if(node1 == node2):
+                    if(node1 == node2):#Flow from node i to node i is zero
                         self.mdl.add_constraint(self.Flow_Object[t, node1, node2] <= 0)
                         self.mdl.add_constraint(self.Flow_Object[t, node1, node2] >= 0)
                         
-                    self.mdl.add_constraint(self.Flow_Object[t, node1, node2] <= self.LinkOp_Object[t, node1, node2]*self.LinkCap[node1, node2])
+                    #self.mdl.add_constraint(self.Flow_Object[t, node1, node2] <= self.LinkOp_Object[t, node1, node2]*self.LinkCap[node1, node2])
                 
-                self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, node1]) <= self.NodeOp_Object[t, node1]*self.NodeCap[node1]) 
+                #self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, node1]) <= self.NodeOp_Object[t, node1]*self.NodeCap[node1]) 
         
-        #Flow from node i to node i is zero
         
         #Network Extraction
         #Flow Constraint by the real systems
@@ -213,7 +210,7 @@ class Res_System:
             for node in self.Gas.DemandSeries:
                 WholeNode = self.Gas.WholeNodeSeries[node]
                 self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, WholeNode]) >= self.mdl.sum(self.Flow_Object[t, WholeNode, :] ))
-                self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, WholeNode]) - self.mdl.sum(self.Flow_Object[t, WholeNode, :]) <= self.Gas.DemandValue[node - self.Gas.DemandSeries[0]])
+                self.mdl.add_constraint((self.mdl.sum(self.Flow_Object[t, :, WholeNode]) - self.mdl.sum(self.Flow_Object[t, WholeNode, :])) <= self.Gas.DemandValue[node - self.Gas.DemandSeries[0]])
             
             #Power Network
             for node in self.Power.SupplySeries:
@@ -229,7 +226,7 @@ class Res_System:
             for node in self.Power.DemandSeries:
                 WholeNode = self.Power.WholeNodeSeries[node]
                 self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, WholeNode]) >= self.mdl.sum(self.Flow_Object[t, WholeNode, :]))
-                self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, WholeNode]) - self.mdl.sum(self.Flow_Object[t, WholeNode, :]) <= self.Power.DemandValue[node - self.Power.DemandSeries[0]])
+                self.mdl.add_constraint((self.mdl.sum(self.Flow_Object[t, :, WholeNode]) - self.mdl.sum(self.Flow_Object[t, WholeNode, :])) <= self.Power.DemandValue[node - self.Power.DemandSeries[0]])
             
             #Water Network
             for node in self.Water.SupplySeries:
@@ -241,52 +238,69 @@ class Res_System:
             for node in self.Water.DemandSeries:
                 WholeNode = self.Water.WholeNodeSeries[node]
                 self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, WholeNode]) >= self.mdl.sum(self.Flow_Object[t, WholeNode, :]))
-                self.mdl.add_constraint(self.mdl.sum(self.Flow_Object[t, :, WholeNode]) - self.mdl.sum(self.Flow_Object[t, WholeNode, :]) <= self.Water.DemandValue[node - self.Water.DemandSeries[0]])
+                self.mdl.add_constraint((self.mdl.sum(self.Flow_Object[t, :, WholeNode]) - self.mdl.sum(self.Flow_Object[t, WholeNode, :])) <= self.Water.DemandValue[node - self.Water.DemandSeries[0]])
             
     def Object(self):
         #String combination
         #DemandValue
         self.DemandValueSum = self.T*(np.sum(self.Gas.DemandValue) + np.sum(self.Power.DemandValue) + np.sum(self.Water.DemandValue))
-        #SupplyValue
-        self.ObjStr = ''
+        #Flow into and out DemandNode
+        self.Gas_FlowInDeN = np.zeros([self.T, self.Gas.DemandNum, self.Gas.SupplyNum], dtype = object)
+        self.Power_FlowInDeN = np.zeros([self.T, self.Power.DemandNum, self.Power.SupplyNum], dtype = object)
+        self.Water_FlowInDeN = np.zeros([self.T, self.Water.DemandNum, self.Water.SupplyNum], dtype = object)
+        
+        self.Gas_FlowOutDeN = np.zeros([self.T, self.Gas.DemandNum, self.Power.SupplyNum], dtype = object)
+        self.Power_FlowOutDeN = np.zeros([self.T, self.Power.DemandNum, self.Water.SupplyNum], dtype = object)
+        self.Water_FlowOutDeN = np.zeros([self.T, self.Water.DemandNum, self.Power.SupplyNum], dtype = object)
+        
         for t in range(self.T):
-            for node in self.Gas.DemandSeries:
-                WholeNode = self.Gas.WholeNodeSeries[node]
-                for node2 in range(self.NodeNum):
-                    if(self.ObjStr == ''):
-                        self.ObjStr += 'f_{}_{}_{}'.format(t, node2, WholeNode)
-                    self.ObjStr += '+f_{}_{}_{}'.format(t, node2, WholeNode)
-                    self.ObjStr += '-f_{}_{}_{}'.format(t, WholeNode, node2)
+            for node1 in self.Gas.DemandSeries:
+                WholeNode1 = self.Gas.WholeNodeSeries[node1]
+                for node2 in self.Gas.SupplySeries:
+                    WholeNode2 = self.Gas.WholeNodeSeries[node2]
+                    self.Gas_FlowInDeN[t, node1 - self.Gas.DemandSeries[0], node2 - self.Gas.SupplySeries[0]] = self.Flow_Object[t, WholeNode2, WholeNode1]
+                
+                for node2 in self.Power.SupplySeries:
+                    WholeNode2 = self.Power.WholeNodeSeries[node2]
+                    self.Gas_FlowOutDeN[t, node1 - self.Gas.DemandSeries[0], node2 - self.Power.SupplySeries[0]] = self.Flow_Object[t, WholeNode1, WholeNode2]
         
-            for node in self.Power.DemandSeries:
-                WholeNode = self.Power.WholeNodeSeries[node]
-                for node2 in range(self.NodeNum):
-                    if(self.ObjStr == ''):
-                        self.ObjStr += 'f_{}_{}_{}'.format(t, node2, WholeNode)
-                    self.ObjStr += '+f_{}_{}_{}'.format(t, node2, WholeNode)
-                    self.ObjStr += '-f_{}_{}_{}'.format(t, WholeNode, node2)
-            
-            for node in self.Water.DemandSeries:
-                WholeNode = self.Water.WholeNodeSeries[node]
-                for node2 in range(self.NodeNum):
-                    if(self.ObjStr == ''):
-                        self.ObjStr += 'f_{}_{}_{}'.format(t, node2, WholeNode)
-                    self.ObjStr += '+f_{}_{}_{}'.format(t, node2, WholeNode)
-                    self.ObjStr += '-f_{}_{}_{}'.format(t, WholeNode, node2)
+        for t in range(self.T):
+            for node1 in self.Power.DemandSeries:
+                WholeNode1 = self.Power.WholeNodeSeries[node1]
+                for node2 in self.Power.SupplySeries:
+                    WholeNode2 = self.Power.WholeNodeSeries[node2]
+                    self.Power_FlowInDeN[t, node1 - self.Power.DemandSeries[0], node2 - self.Power.SupplySeries[0]] = self.Flow_Object[t, WholeNode2, WholeNode1]
+                
+                for node2 in self.Water.SupplySeries:
+                    WholeNode2 = self.Water.WholeNodeSeries[node2]
+                    self.Power_FlowOutDeN[t, node1 - self.Power.DemandSeries[0], node2 - self.Water.SupplySeries[0]] = self.Flow_Object[t, WholeNode1, WholeNode2]
+                    
+        for t in range(self.T):
+            for node1 in self.Water.DemandSeries:
+                WholeNode1 = self.Water.WholeNodeSeries[node1]
+                for node2 in self.Water.SupplySeries:
+                    WholeNode2 = self.Water.WholeNodeSeries[node2]
+                    self.Water_FlowInDeN[t, node1 - self.Water.DemandSeries[0], node2 - self.Water.SupplySeries[0]] = self.Flow_Object[t, WholeNode2, WholeNode1]
+                
+                for node2 in self.Power.SupplySeries:
+                    WholeNode2 = self.Power.WholeNodeSeries[node2]
+                    self.Water_FlowOutDeN[t, node1 - self.Water.DemandSeries[0], node2 - self.Power.SupplySeries[0]] = self.Flow_Object[t, WholeNode1, WholeNode2]
         
-        self.ObjStr += '-{}'.format(self.DemandValueSum)
-        
-        exec('self.mdl.minimize(' + self.ObjStr + ')')
+        self.mdl.minimize(self.DemandValueSum - (self.mdl.sum(self.Gas_FlowInDeN) - self.mdl.sum(self.Gas_FlowOutDeN))\
+                          - (self.mdl.sum(self.Power_FlowInDeN) - self.mdl.sum(self.Power_FlowOutDeN))\
+                          - (self.mdl.sum(self.Water_FlowInDeN) - self.mdl.sum(self.Water_FlowOutDeN)))
         
     def OpSolve(self):
         print("\nSolving model....")
         self.msol = self.mdl.solve()
-        
+        """
+        self.msol.display()
+        """
             
      
 
 #T, The Whole Simulation Time; t1: The Beginning of the Restoration Time
-T, t1 = 10, 3
+T, t1 = 5, 3
 #The speed of repairment, how much capaciity can it be restored per time unit
 beta = 10
 Shelby_County_Res = Res_System(T, Shelby_County, t1)
@@ -295,7 +309,7 @@ Shelby_County_Res.RepairRatio(beta)
 Shelby_County_Res.OptModelDefine('Sc_op')
 Shelby_County_Res.OpVarDefine()
 Shelby_County_Res.OpCtDefine()
-
 Shelby_County_Res.Object()
+Shelby_County_Res.OpSolve()
 
 Shelby_County_Res.mdl.print_information()
