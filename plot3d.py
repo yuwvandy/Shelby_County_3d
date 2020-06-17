@@ -51,7 +51,11 @@ def Plot3d(System):
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
     ax.legend(frameon = 0)
-    plt.savefig("graph_conv1.png", dpi = 3000) 
+#    plt.savefig("graph_conv1.png", dpi = 3000) 
+    
+Plot3d(Shelby_County)
+    
+    
 
 
 
